@@ -142,8 +142,8 @@ function luafyAny(json:JsonValue, depth:number) {
 }
 
 function json2lua(json:JsonObject) : string {
-    let values = luafyAny(json, 1);
-    return `return {\n` + values + `\n}`;
+    let values = luafyAny(json, 0);
+    return `return ${values}`;
 }
 
 function extractTiledObjects(mapObjects: MapObject[]):JsonArray {
