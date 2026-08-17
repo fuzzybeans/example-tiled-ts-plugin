@@ -66,9 +66,16 @@ function luafyJsonArray(json:JsonArray, depth:number):string {
     return values;
 }
 
-function luafyJsonObject(json:JsonObject, depth:number):string {
+function luafyJsonObject(json:JsonObject, depth:number, ignoreNesting:boolean=false):string {
     const newdepth = depth + 1;
-    let values = `${DELIMITER.repeat(depth)}{`;
+    let values = "";
+
+    if (!ignoreNesting) {
+        values += `${DELIMITER.repeat(depth)}`;
+    }
+
+    values += `{`;
+
     const n = Object.keys(json).length;
     let i = 0;
     const isInline = inline_lk.get(json) !== undefined;
@@ -87,7 +94,7 @@ function luafyJsonObject(json:JsonObject, depth:number):string {
                 values += ", ";
             }
         } else {
-            values += `${DELIMITER.repeat(newdepth)}${key} = ${luafyAny(value, newdepth)}`;
+            values += `${DELIMITER.repeat(newdepth)}${key} = ${luafyAny(value, newdepth, true)}`;
 
             if (i < n - 1) {
                 values += ",\n";
@@ -120,13 +127,13 @@ function luafyJsonPrimitive(json:JsonPrimitive):string {
     return values;
 }
 
-function luafyAny(json:JsonValue, depth:number) {
+function luafyAny(json:JsonValue, depth:number, ignoreNesting:boolean=false) {
     if (Array.isArray(json)) {
         return luafyJsonArray(json, depth);
     }
 
     if (typeof json === "object" && json !== null && !Array.isArray(json)) {
-        return  luafyJsonObject(json, depth);
+        return  luafyJsonObject(json, depth, ignoreNesting);
     }
     
     if (
