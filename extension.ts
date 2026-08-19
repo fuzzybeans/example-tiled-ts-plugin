@@ -234,6 +234,7 @@ function pick(map:TileMap):JsonObject {
             const tile:JsonObject = {
                 id: mapTile.id,
                 objectGroup: {
+                    type: "objectgroup",
                     objects
                 }
             };
