@@ -142,7 +142,7 @@ function luafyAny(json:JsonValue, depth:number, ignoreNesting:boolean=false) {
         typeof json === "boolean" || 
         json === null
     ) {
-       return luafyJsonPrimitive(json);
+        return luafyJsonPrimitive(json);
     }
 
     return "";
@@ -170,6 +170,8 @@ function extractTiledObjects(mapObjects: MapObject[]):JsonArray {
             object.height = mapObject.height;
         } else if (mapObject.shape === MapObject.Polygon) {
             object.shape = "polygon";
+            object.x = mapObject.x;
+            object.y = mapObject.y;
             object.polygon = mapObject.polygon.map(poly => { 
                 const vertices = { x: poly.x, y: poly.y };
 
