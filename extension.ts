@@ -5,8 +5,8 @@ type JsonArray = JsonValue[];
 type JsonObject = { [key: string]: JsonValue };
 type JsonValue = JsonPrimitive | JsonArray | JsonObject;
 
-const DELIMITER = "\t";
-const PAD = 4;
+const DELIMITER = "  ";
+const PAD_TILE_IDS = 4;
 const wrap_lk = new Map();
 const inline_lk = new Map();
 
@@ -33,7 +33,7 @@ function luafyJsonArray(json:JsonArray, depth:number):string {
                 values += DELIMITER.repeat(newdepth);
             }
 
-            values += `${String(json[i]).padStart(PAD)}`;
+            values += `${String(json[i]).padStart(PAD_TILE_IDS)}`;
 
             if (i < n - 1) {
                 values += ",";
@@ -208,7 +208,7 @@ function pick(map:TileMap):JsonObject {
     const parsedTilesets:JsonArray = [];
     const parsedLayers:JsonArray = [];
 
-    // For tilesets, we'll just take name, tile count, first tile ID in the tileset, and we'll use just the image name from the full directory path.
+    // For tilesets, we'll just take name, tile count, first tile ID in the tileset, and we'll use just the image name, and discard the full directory path.
     // Each tile set may define collision geometry separately on each tile, as well.
 
     for (let i = 0; i < mapTilesets.length; ++i) {
@@ -252,8 +252,8 @@ function pick(map:TileMap):JsonObject {
     json.tilesets = parsedTilesets;
 
     // For each layer, we want ID, name, and type.
-    // If it's a "tile layer" type, then we'll add the tile IDs drawn to the layer. 
-    // If it's an "object layer" type, then add the individual shape objects defined in the layer.
+    // If it's a "tile layer" type, then we'll add the tile IDs that should be drawn to the layer. 
+    // If it's an "object layer" type, then add the individual shape objects (collision data) defined in the layer.
 
     for (let i = 0; i < mapLayers.length; ++i) {
         const mapLayer = map.layerAt(i);
