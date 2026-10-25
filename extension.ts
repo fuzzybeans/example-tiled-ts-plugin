@@ -182,6 +182,8 @@ function extractTiledObjects(mapObjects: MapObject[]): JsonArray {
 
         return vertices;
       });
+    } else if (mapObject.shape === MapObject.Point) {
+      object.shape = "point";
     }
 
     if (object.shape !== "") {
