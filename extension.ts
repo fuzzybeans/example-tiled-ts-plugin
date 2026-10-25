@@ -88,7 +88,7 @@ function luafyJsonObject(json: JsonObject, depth: number, ignoreNesting: boolean
 
   for (const [key, value] of Object.entries(json)) {
     if (isInline) {
-      values += `${key} = ${luafyAny(value, newdepth)}`;
+      values += `${key} = ${luafyAny(value, newdepth, true)}`;
 
       if (i < n - 1) {
         values += ", ";
@@ -113,15 +113,16 @@ function luafyJsonObject(json: JsonObject, depth: number, ignoreNesting: boolean
   return values;
 }
 
-function luafyJsonPrimitive(json: JsonPrimitive): string {
+function luafyJsonPrimitive(json: JsonPrimitive, depth: number = 0, ignoreNesting: boolean = false): string {
   let values = "";
+  let indent = ignoreNesting ? "" : DELIMITER.repeat(depth);
 
   if (typeof json === "string") {
-    values += `"${json}"`;
+    values += `${indent}"${json}"`;
   } else if (json === null) {
-    values += "nil";
+    values += `${indent}nil`;
   } else {
-    values += json;
+    values += `${indent}${json}`;
   }
 
   return values;
@@ -142,7 +143,7 @@ function luafyAny(json: JsonValue, depth: number, ignoreNesting: boolean = false
     typeof json === "boolean" ||
     json === null
   ) {
-    return luafyJsonPrimitive(json);
+    return luafyJsonPrimitive(json, depth, ignoreNesting);
   }
 
   return "";
@@ -184,6 +185,24 @@ function extractTiledObjects(mapObjects: MapObject[]): JsonArray {
       });
     } else if (mapObject.shape === MapObject.Point) {
       object.shape = "point";
+    }
+
+    const resolvedProperties = mapObject.resolvedProperties();
+
+    if (Object.keys(resolvedProperties).length > 0) {
+      object.properties = {};
+
+      for (const key of Object.keys(resolvedProperties)) {
+        const value = resolvedProperties[key];
+
+        if (value === undefined) { 
+          continue;
+        }
+
+        const parsedValue = JSON.parse(JSON.stringify(value));
+
+        object.properties[key] = parsedValue;
+      }
     }
 
     if (object.shape !== "") {
@@ -270,7 +289,7 @@ function pick(map: TileMap): JsonObject {
     const layer: JsonObject = {
       id: mapLayer.id,
       name: mapLayer.name,
-      type: ""
+      type: "",
     };
 
     // There's probably a better way to do this with type safety.
