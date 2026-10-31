@@ -255,19 +255,40 @@ function pick(map: TileMap): JsonObject {
     const parsedTiles: JsonArray = [];
 
     mapTiles.forEach((mapTile) => {
-      if (mapTile.objectGroup === null || mapTile.objectGroup.objectCount === 0) {
-        return;
-      }
-
-      const objects = extractTiledObjects(mapTile.objectGroup.objects);
-
       const tile: JsonObject = {
         id: mapTile.id,
-        objectGroup: {
-          type: "objectgroup",
-          objects,
-        },
       };
+
+      if (mapTile.objectGroup !== null && mapTile.objectGroup.objectCount > 0) {
+        const objects = extractTiledObjects(mapTile.objectGroup.objects);
+
+        tile.objectGroup = {
+          type: "objectgroup",
+          objects
+        }
+      }
+
+      const resolvedProperties = mapTile.properties();
+
+      if (Object.keys(resolvedProperties).length > 0) {
+        tile.properties = {};
+
+        for (const key of Object.keys(resolvedProperties)) {
+          const value = resolvedProperties[key];
+
+          if (value === undefined) { 
+            continue;
+          }
+
+          const parsedValue = JSON.parse(JSON.stringify(value));
+
+          tile.properties[key] = parsedValue;
+        }
+      }
+
+      if (!Object.prototype.hasOwnProperty.call(tile, "objectGroup") && !Object.prototype.hasOwnProperty.call(tile, "properties")) {
+        return;
+      }
 
       parsedTiles.push(tile);
     });
