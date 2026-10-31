@@ -165,8 +165,13 @@ function extractTiledObjects(mapObjects: MapObject[]): JsonArray {
 
     object.x = mapObject.x;
     object.y = mapObject.y;
-    object.type = mapObject.className;
-    object.name = mapObject.name;
+
+    if (mapObject.className) {
+      object.type = mapObject.className;
+    }
+    if (mapObject.name) {
+      object.name = mapObject.name;
+    }
 
     if (mapObject.shape === MapObject.Rectangle) {
       object.shape = "rectangle";
@@ -343,7 +348,7 @@ function pick(map: TileMap): JsonObject {
       const objectlayer = mapLayer as ObjectGroup;
 
       layer.type = "objectgroup";
-      layer.objects = extractTiledObjects(objectlayer.objects);
+      layer.objects = extractTiledObjects(objectlayer.objects, true);
     }
 
     if (layer.type !== "") {
